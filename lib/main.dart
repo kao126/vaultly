@@ -145,18 +145,27 @@ class _MyHomePageState extends State<MyHomePage> {
       //     itemCount: _mediaFileList!.length,
       //   ),
       // );
-      return ListView.builder(
-          key: UniqueKey(),
-          itemCount: _mediaFileList!.length,
-          itemBuilder: (BuildContext context, int index) {
-            final String? mime = lookupMimeType(_mediaFileList![index].path);
-            return (mime == null || mime.startsWith('image/'))
-                ? SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Image.file(File(_mediaFileList![index].path)))
-                : null;
-          });
+
+      // return ListView.builder(
+      //     key: UniqueKey(),
+      //     itemCount: _mediaFileList!.length,
+      //     itemBuilder: (BuildContext context, int index) {
+      //       final String? mime = lookupMimeType(_mediaFileList![index].path);
+      //       return (mime == null || mime.startsWith('image/'))
+      //           ? SizedBox(
+      //               width: 100,
+      //               height: 100,
+      //               child: Image.file(File(_mediaFileList![index].path)))
+      //           : null;
+      //     });
+      return GridView.count(
+          crossAxisCount: 3,
+          children: _mediaFileList!.map((XFile file) {
+            return Image.file(
+              File(file.path),
+              fit: BoxFit.cover,
+            );
+          }).toList());
     } else if (_pickImageError != null) {
       return Text(
         'Pick image error: $_pickImageError',
