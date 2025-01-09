@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,6 +70,17 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isVideo = false;
   String? _retrieveDataError;
   final ImagePicker _picker = ImagePicker();
+
+  Future _getVideoThumbnail(String filePath) async {
+    return await VideoThumbnail.thumbnailFile(
+      video: filePath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth:
+          128, // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
+      quality: 75,
+    );
+  }
+
   // 画像をギャラリーから選ぶ関数
   Future pickImage() async {
     try {
@@ -99,6 +111,16 @@ class _MyHomePageState extends State<MyHomePage> {
     if (retrieveError != null) {
       return retrieveError;
     }
+    // return GridView.count(
+    //     crossAxisCount: 3,
+    //     children: _mediaFileList!.map((XFile file) {
+    //       final String? mime = lookupMimeType(file.path);
+    //       debugPrint('Debug message: $mime');
+    //       return Image.file(
+    //         File(file.path),
+    //         fit: BoxFit.cover,
+    //       );
+    //     }).toList());
     // if (_controller == null) {
     return const Text(
       'You have not yet picked a video',
@@ -162,10 +184,25 @@ class _MyHomePageState extends State<MyHomePage> {
       return GridView.count(
           crossAxisCount: 3,
           children: _mediaFileList!.map((XFile file) {
-            return Image.file(
-              File(file.path),
-              fit: BoxFit.cover,
-            );
+            final String? mime = lookupMimeType(file.path);
+            debugPrint('Debug message: $mime');
+            return (mime == null || mime.startsWith('image/'))
+                ? Image.file(
+                    File(file.path),
+                    fit: BoxFit.cover,
+                  )
+                : FutureBuilder(
+                    future: _getVideoThumbnail(file.path),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Image.file(
+                          File(snapshot.data),
+                          fit: BoxFit.cover,
+                        );
+                      }
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  );
           }).toList());
     } else if (_pickImageError != null) {
       return Text(
