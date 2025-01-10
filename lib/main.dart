@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
   runApp(const MyApp());
